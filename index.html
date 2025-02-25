@@ -24,7 +24,7 @@
             padding: 10px;
             text-align: center;
             border-radius: 5px;
-            font-size: 18px; /* Reduzir o tamanho da fonte */
+            font-size: 18px;
         }
         table {
             width: 100%;
@@ -34,7 +34,7 @@
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px; /* Reduzir o padding */
+            padding: 6px; /* Reduzir o padding */
             text-align: left;
         }
         th {
@@ -44,45 +44,45 @@
         .footer {
             text-align: center;
             margin-top: 20px;
-            font-size: 12px; /* Reduzir o tamanho da fonte */
+            font-size: 12px;
             color: #555;
         }
         .input-group {
-            margin-bottom: 10px; /* Reduzir o espaçamento */
+            margin-bottom: 10px;
         }
         .input-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            font-size: 12px; /* Reduzir o tamanho da fonte */
+            font-size: 12px;
         }
         .input-group input, .input-group textarea, .input-group select {
             width: 100%;
-            padding: 6px; /* Reduzir o padding */
+            padding: 6px;
             box-sizing: border-box;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 12px; /* Reduzir o tamanho da fonte */
+            font-size: 12px;
         }
         .input-group textarea {
             resize: vertical;
-            height: 80px; /* Reduzir a altura */
+            height: 80px;
         }
         .button {
             background-color: #007bff;
             color: white;
-            padding: 8px 16px; /* Reduzir o padding */
+            padding: 8px 16px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 12px; /* Reduzir o tamanho da fonte */
+            font-size: 12px;
         }
         .button:hover {
             background-color: #0056b3;
         }
         .add-activity-button {
             background-color: #28a745;
-            margin-bottom: 10px; /* Reduzir o espaçamento */
+            margin-bottom: 10px;
         }
     </style>
     <!-- Incluindo a biblioteca jsPDF -->
@@ -287,7 +287,13 @@
                 head: [['Prioridade', 'Frente de Trabalho', 'Comentários Gerais', 'Justificativa']],
                 body: prioridadesData,
                 styles: { fontSize: 8 }, // Reduzir o tamanho da fonte na tabela
-                margin: { top: 10 } // Ajustar a margem
+                margin: { top: 10 }, // Ajustar a margem
+                columnStyles: {
+                    0: { cellWidth: 20 }, // Largura da coluna Prioridade
+                    1: { cellWidth: 50 }, // Largura da coluna Frente de Trabalho
+                    2: { cellWidth: 60 }, // Largura da coluna Comentários Gerais
+                    3: { cellWidth: 60 }  // Largura da coluna Justificativa
+                }
             });
 
             // Justificativas de Paradas
