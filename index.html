@@ -24,15 +24,17 @@
             padding: 10px;
             text-align: center;
             border-radius: 5px;
+            font-size: 18px; /* Reduzir o tamanho da fonte */
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            font-size: 12px; /* Reduzir o tamanho da fonte da tabela */
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 8px; /* Reduzir o padding */
             text-align: left;
         }
         th {
@@ -42,42 +44,45 @@
         .footer {
             text-align: center;
             margin-top: 20px;
-            font-size: 14px;
+            font-size: 12px; /* Reduzir o tamanho da fonte */
             color: #555;
         }
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 10px; /* Reduzir o espaçamento */
         }
         .input-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            font-size: 12px; /* Reduzir o tamanho da fonte */
         }
         .input-group input, .input-group textarea, .input-group select {
             width: 100%;
-            padding: 8px;
+            padding: 6px; /* Reduzir o padding */
             box-sizing: border-box;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 12px; /* Reduzir o tamanho da fonte */
         }
         .input-group textarea {
             resize: vertical;
-            height: 100px;
+            height: 80px; /* Reduzir a altura */
         }
         .button {
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px; /* Reduzir o padding */
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 12px; /* Reduzir o tamanho da fonte */
         }
         .button:hover {
             background-color: #0056b3;
         }
         .add-activity-button {
             background-color: #28a745;
-            margin-bottom: 15px;
+            margin-bottom: 10px; /* Reduzir o espaçamento */
         }
     </style>
     <!-- Incluindo a biblioteca jsPDF -->
@@ -248,18 +253,21 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
+            // Configurações de fonte e tamanho
+            doc.setFontSize(10); // Reduzir o tamanho da fonte para caber mais conteúdo
+
             // Título do relatório
-            doc.setFontSize(18);
+            doc.setFontSize(14);
             doc.text("Relatório de Atividades", 10, 10);
 
             // Informações básicas
-            doc.setFontSize(12);
+            doc.setFontSize(10);
             doc.text(`Data: ${document.getElementById('relatorioData').innerText}`, 10, 20);
             doc.text(`Área: ${document.getElementById('relatorioArea').innerText}`, 10, 30);
             doc.text(`Turno: ${document.getElementById('relatorioTurno').innerText}`, 10, 40);
 
             // Prioridades do Turno
-            doc.setFontSize(14);
+            doc.setFontSize(12);
             doc.text("Prioridades do Turno:", 10, 50);
 
             const prioridadesTable = document.getElementById('relatorioPrioridadesTable');
@@ -278,22 +286,24 @@
                 startY: 60,
                 head: [['Prioridade', 'Frente de Trabalho', 'Comentários Gerais', 'Justificativa']],
                 body: prioridadesData,
+                styles: { fontSize: 8 }, // Reduzir o tamanho da fonte na tabela
+                margin: { top: 10 } // Ajustar a margem
             });
 
             // Justificativas de Paradas
-            doc.setFontSize(14);
+            doc.setFontSize(12);
             doc.text("Justificativas de Paradas:", 10, doc.autoTable.previous.finalY + 10);
 
             const justificativasParadas = document.getElementById('relatorioJustificativasParadas').innerText.split('\n');
             doc.text(justificativasParadas, 10, doc.autoTable.previous.finalY + 20);
 
             // Resumo do Turno
-            doc.setFontSize(14);
+            doc.setFontSize(12);
             doc.text("Resumo do Turno:", 10, doc.autoTable.previous.finalY + 30);
             doc.text(`Produção: ${document.getElementById('relatorioResumoTurno').innerText}`, 10, doc.autoTable.previous.finalY + 40);
 
             // Observações Gerais
-            doc.setFontSize(14);
+            doc.setFontSize(12);
             doc.text("Observações Gerais:", 10, doc.autoTable.previous.finalY + 50);
             doc.text(document.getElementById('relatorioObservacoesGerais').innerText, 10, doc.autoTable.previous.finalY + 60);
 
