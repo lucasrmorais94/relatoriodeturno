@@ -87,6 +87,11 @@
         .input-group input[type="file"] {
             font-size: 10px;
         }
+        #relatorioFotosContainer img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.24/jspdf.plugin.autotable.min.js"></script>
@@ -151,8 +156,8 @@
         <textarea id="resumoTurno" placeholder="Insira o resumo do turno"></textarea>
 
         <div class="input-group">
-            <label for="foto">Anexar Foto:</label>
-            <input type="file" id="foto" name="foto" accept="image/*">
+            <label for="foto">Anexar Fotos:</label>
+            <input type="file" id="foto" name="foto" accept="image/*" multiple>
         </div>
 
         <button class="button" onclick="gerarRelatorio()">Gerar Relatório</button>
@@ -182,8 +187,8 @@
             <h3>📊 Resumo do Turno:</h3>
             <p><strong>Produção:</strong> <span id="relatorioResumoTurno"></span></p>
 
-            <h3>📷 Foto Anexada:</h3>
-            <img id="relatorioFoto" src="" alt="Foto Anexada" style="max-width: 100%; height: auto; display: none;">
+            <h3>📷 Fotos Anexadas:</h3>
+            <div id="relatorioFotosContainer"></div>
 
             <div class="footer">
                 <p>Gerência de Mineração - Relatório Gerado Automaticamente</p>
@@ -263,16 +268,22 @@
             document.getElementById('relatorioResumoTurno').innerText = resumoTurno;
 
             const fotoInput = document.getElementById('foto');
-            const relatorioFoto = document.getElementById('relatorioFoto');
-            if (fotoInput.files && fotoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    relatorioFoto.src = e.target.result;
-                    relatorioFoto.style.display = 'block';
-                };
-                reader.readAsDataURL(fotoInput.files[0]);
-            } else {
-                relatorioFoto.style.display = 'none';
+            const relatorioFotosContainer = document.getElementById('relatorioFotosContainer');
+            relatorioFotosContainer.innerHTML = ''; // Limpa as fotos anteriores
+
+            if (fotoInput.files && fotoInput.files.length > 0) {
+                for (let i = 0; i < fotoInput.files.length; i++) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+                        img.style.marginBottom = '10px';
+                        relatorioFotosContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(fotoInput.files[i]);
+                }
             }
 
             document.getElementById('relatorioGerado').style.display = 'block';
@@ -341,14 +352,20 @@
             doc.text(`Produção: ${document.getElementById('relatorioResumoTurno').innerText}`, 10, doc.autoTable.previous.finalY + 40);
 
             const fotoInput = document.getElementById('foto');
-            if (fotoInput.files && fotoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imgData = e.target.result;
-                    doc.addImage(imgData, 'JPEG', 10, doc.autoTable.previous.finalY + 50, 50, 50);
-                    doc.save("relatorio.pdf");
-                };
-                reader.readAsDataURL(fotoInput.files[0]);
+            if (fotoInput.files && fotoInput.files.length > 0) {
+                let yOffset = doc.autoTable.previous.finalY + 50;
+                for (let i = 0; i < fotoInput.files.length; i++) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imgData = e.target.result;
+                        doc.addImage(imgData, 'JPEG', 10, yOffset, 50, 50);
+                        yOffset += 60; // Ajuste a posição Y para a próxima imagem
+                        if (i === fotoInput.files.length - 1) {
+                            doc.save("relatorio.pdf");
+                        }
+                    };
+                    reader.readAsDataURL(fotoInput.files[i]);
+                }
             } else {
                 doc.save("relatorio.pdf");
             }
