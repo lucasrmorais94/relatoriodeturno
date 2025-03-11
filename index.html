@@ -24,17 +24,17 @@
             padding: 10px;
             text-align: center;
             border-radius: 5px;
-            font-size: 18px; /* Reduzir o tamanho da fonte */
+            font-size: 12px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            font-size: 12px; /* Reduzir o tamanho da fonte da tabela */
+            font-size: 6px;
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px; /* Reduzir o padding */
+            padding: 6px;
             text-align: left;
         }
         th {
@@ -44,48 +44,50 @@
         .footer {
             text-align: center;
             margin-top: 20px;
-            font-size: 12px; /* Reduzir o tamanho da fonte */
+            font-size: 12px;
             color: #555;
         }
         .input-group {
-            margin-bottom: 10px; /* Reduzir o espaçamento */
+            margin-bottom: 10px;
         }
         .input-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            font-size: 12px; /* Reduzir o tamanho da fonte */
+            font-size: 10px;
         }
         .input-group input, .input-group textarea, .input-group select {
             width: 100%;
-            padding: 6px; /* Reduzir o padding */
+            padding: 6px;
             box-sizing: border-box;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 12px; /* Reduzir o tamanho da fonte */
+            font-size: 10px;
         }
         .input-group textarea {
             resize: vertical;
-            height: 80px; /* Reduzir a altura */
+            height: 80px;
         }
         .button {
             background-color: #007bff;
             color: white;
-            padding: 8px 16px; /* Reduzir o padding */
+            padding: 8px 16px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 12px; /* Reduzir o tamanho da fonte */
+            font-size: 12px;
         }
         .button:hover {
             background-color: #0056b3;
         }
         .add-activity-button {
             background-color: #28a745;
-            margin-bottom: 10px; /* Reduzir o espaçamento */
+            margin-bottom: 10px;
+        }
+        .input-group input[type="file"] {
+            font-size: 10px;
         }
     </style>
-    <!-- Incluindo a biblioteca jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.24/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -110,6 +112,16 @@
         <div class="input-group">
             <label for="turno">Turno:</label>
             <select id="turno" name="turno">
+                <option value="A">Turno A</option>
+                <option value="B">Turno B</option>
+                <option value="C">Turno C</option>
+                <option value="D">Turno D</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="periodo">Período:</label>
+            <select id="periodo" name="periodo">
                 <option value="Diurno">Diurno</option>
                 <option value="Noturno">Noturno</option>
             </select>
@@ -138,8 +150,10 @@
         <h3>📊 Resumo do Turno:</h3>
         <textarea id="resumoTurno" placeholder="Insira o resumo do turno"></textarea>
 
-        <h3>📢 Observações Gerais:</h3>
-        <textarea id="observacoesGerais" placeholder="Insira as observações gerais"></textarea>
+        <div class="input-group">
+            <label for="foto">Anexar Foto:</label>
+            <input type="file" id="foto" name="foto" accept="image/*">
+        </div>
 
         <button class="button" onclick="gerarRelatorio()">Gerar Relatório</button>
         <button class="button" onclick="gerarPDF()">Gerar PDF</button>
@@ -150,6 +164,7 @@
             <p><strong>Data:</strong> <span id="relatorioData"></span></p>
             <p><strong>Área:</strong> <span id="relatorioArea"></span></p>
             <p><strong>Turno:</strong> <span id="relatorioTurno"></span></p>
+            <p><strong>Período:</strong> <span id="relatorioPeriodo"></span></p>
 
             <h3>📌 Prioridades do Turno:</h3>
             <table id="relatorioPrioridadesTable">
@@ -167,8 +182,8 @@
             <h3>📊 Resumo do Turno:</h3>
             <p><strong>Produção:</strong> <span id="relatorioResumoTurno"></span></p>
 
-            <h3>📢 Observações Gerais:</h3>
-            <p><span id="relatorioObservacoesGerais"></span></p>
+            <h3>📷 Foto Anexada:</h3>
+            <img id="relatorioFoto" src="" alt="Foto Anexada" style="max-width: 100%; height: auto; display: none;">
 
             <div class="footer">
                 <p>Gerência de Mineração - Relatório Gerado Automaticamente</p>
@@ -177,31 +192,29 @@
     </div>
 
     <script>
-        let contadorPrioridade = 1; // Contador para a coluna de prioridade
+        let contadorPrioridade = 1;
 
-        // Função para adicionar uma nova linha de atividade
         function adicionarAtividade() {
             const table = document.getElementById('prioridadesTable');
-            const newRow = table.insertRow(-1); // Insere uma nova linha no final da tabela
+            const newRow = table.insertRow(-1);
 
             const cell1 = newRow.insertCell(0);
             const cell2 = newRow.insertCell(1);
             const cell3 = newRow.insertCell(2);
             const cell4 = newRow.insertCell(3);
 
-            contadorPrioridade++; // Incrementa o contador de prioridade
-            cell1.innerText = contadorPrioridade; // Define o número da prioridade
+            contadorPrioridade++;
+            cell1.innerText = contadorPrioridade;
             cell2.innerHTML = '<input type="text" class="frente" placeholder="Frente de Trabalho">';
             cell3.innerHTML = '<input type="text" class="comentarios" placeholder="Comentários Gerais">';
             cell4.innerHTML = '<input type="text" class="justificativa" placeholder="Justificativa">';
         }
 
-        // Função para gerar o relatório
         function gerarRelatorio() {
-            // Coletar dados dos campos de entrada
             const data = document.getElementById('data').value;
             const area = document.getElementById('area').value;
             const turno = document.getElementById('turno').value;
+            const periodo = document.getElementById('periodo').value;
 
             const frentes = document.querySelectorAll('.frente');
             const comentarios = document.querySelectorAll('.comentarios');
@@ -209,12 +222,18 @@
 
             const justificativasParadas = document.getElementById('justificativasParadas').value.split('\n');
             const resumoTurno = document.getElementById('resumoTurno').value;
-            const observacoesGerais = document.getElementById('observacoesGerais').value;
 
-            // Preencher o relatório gerado
             document.getElementById('relatorioData').innerText = data;
             document.getElementById('relatorioArea').innerText = area;
-            document.getElementById('relatorioTurno').innerText = turno;
+
+            const turnoDescricao = {
+                'A': 'Turno A',
+                'B': 'Turno B',
+                'C': 'Turno C',
+                'D': 'Turno D'
+            };
+            document.getElementById('relatorioTurno').innerText = turnoDescricao[turno];
+            document.getElementById('relatorioPeriodo').innerText = periodo;
 
             const relatorioPrioridadesTable = document.getElementById('relatorioPrioridadesTable');
             relatorioPrioridadesTable.innerHTML = `
@@ -227,7 +246,7 @@
             `;
 
             const prioridades = document.querySelectorAll('#prioridadesTable tr td:nth-child(1)');
-            for (let i = 1; i < prioridades.length; i++) { // Começa em 1 para pular o cabeçalho
+            for (let i = 1; i < prioridades.length; i++) {
                 relatorioPrioridadesTable.innerHTML += `
                     <tr>
                         <td>${prioridades[i].innerText}</td>
@@ -242,33 +261,48 @@
             relatorioJustificativasParadas.innerHTML = justificativasParadas.map(item => `<li>${item}</li>`).join('');
 
             document.getElementById('relatorioResumoTurno').innerText = resumoTurno;
-            document.getElementById('relatorioObservacoesGerais').innerText = observacoesGerais;
 
-            // Exibir o relatório gerado
+            const fotoInput = document.getElementById('foto');
+            const relatorioFoto = document.getElementById('relatorioFoto');
+            if (fotoInput.files && fotoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    relatorioFoto.src = e.target.result;
+                    relatorioFoto.style.display = 'block';
+                };
+                reader.readAsDataURL(fotoInput.files[0]);
+            } else {
+                relatorioFoto.style.display = 'none';
+            }
+
             document.getElementById('relatorioGerado').style.display = 'block';
         }
 
-        // Função para gerar PDF
         function gerarPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // Configurações de fonte e tamanho
-            doc.setFontSize(10); // Reduzir o tamanho da fonte para caber mais conteúdo
+            doc.setFontSize(10);
 
-            // Título do relatório
             doc.setFontSize(14);
             doc.text("Relatório de Atividades", 10, 10);
 
-            // Informações básicas
             doc.setFontSize(10);
             doc.text(`Data: ${document.getElementById('relatorioData').innerText}`, 10, 20);
             doc.text(`Área: ${document.getElementById('relatorioArea').innerText}`, 10, 30);
-            doc.text(`Turno: ${document.getElementById('relatorioTurno').innerText}`, 10, 40);
 
-            // Prioridades do Turno
+            const turnoDescricao = {
+                'A': 'Turno A',
+                'B': 'Turno B',
+                'C': 'Turno C',
+                'D': 'Turno D'
+            };
+            const turno = document.getElementById('turno').value;
+            doc.text(`Turno: ${turnoDescricao[turno]}`, 10, 40);
+            doc.text(`Período: ${document.getElementById('periodo').value}`, 10, 50);
+
             doc.setFontSize(12);
-            doc.text("Prioridades do Turno:", 10, 50);
+            doc.text("Prioridades do Turno:", 10, 60);
 
             const prioridadesTable = document.getElementById('relatorioPrioridadesTable');
             const prioridadesData = [];
@@ -283,32 +317,41 @@
             }
 
             doc.autoTable({
-                startY: 60,
+                startY: 70,
                 head: [['Prioridade', 'Frente de Trabalho', 'Comentários Gerais', 'Justificativa']],
                 body: prioridadesData,
-                styles: { fontSize: 8 }, // Reduzir o tamanho da fonte na tabela
-                margin: { top: 10 } // Ajustar a margem
+                styles: { fontSize: 8 },
+                margin: { top: 10 },
+                columnStyles: {
+                    0: { cellWidth: 20 },
+                    1: { cellWidth: 50 },
+                    2: { cellWidth: 60 },
+                    3: { cellWidth: 60 }
+                }
             });
 
-            // Justificativas de Paradas
             doc.setFontSize(12);
             doc.text("Justificativas de Paradas:", 10, doc.autoTable.previous.finalY + 10);
 
             const justificativasParadas = document.getElementById('relatorioJustificativasParadas').innerText.split('\n');
             doc.text(justificativasParadas, 10, doc.autoTable.previous.finalY + 20);
 
-            // Resumo do Turno
             doc.setFontSize(12);
             doc.text("Resumo do Turno:", 10, doc.autoTable.previous.finalY + 30);
             doc.text(`Produção: ${document.getElementById('relatorioResumoTurno').innerText}`, 10, doc.autoTable.previous.finalY + 40);
 
-            // Observações Gerais
-            doc.setFontSize(12);
-            doc.text("Observações Gerais:", 10, doc.autoTable.previous.finalY + 50);
-            doc.text(document.getElementById('relatorioObservacoesGerais').innerText, 10, doc.autoTable.previous.finalY + 60);
-
-            // Salvar o PDF
-            doc.save("relatorio.pdf");
+            const fotoInput = document.getElementById('foto');
+            if (fotoInput.files && fotoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgData = e.target.result;
+                    doc.addImage(imgData, 'JPEG', 10, doc.autoTable.previous.finalY + 50, 50, 50);
+                    doc.save("relatorio.pdf");
+                };
+                reader.readAsDataURL(fotoInput.files[0]);
+            } else {
+                doc.save("relatorio.pdf");
+            }
         }
     </script>
 </body>
