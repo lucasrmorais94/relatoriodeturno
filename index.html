@@ -87,10 +87,71 @@
         .input-group input[type="file"] {
             font-size: 10px;
         }
-        #relatorioFotosContainer img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 10px;
+        .thumbnail-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .thumbnail {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .foto-preview {
+            position: relative;
+            display: inline-block;
+            margin: 5px;
+            width: 150px;
+        }
+        .foto-preview-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .legenda-input {
+            margin-top: 5px;
+            width: 100%;
+            font-size: 10px;
+            padding: 4px;
+        }
+        .delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fotos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .foto-item {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 8px;
+            background-color: #f9f9f9;
+        }
+        .foto-legenda {
+            margin-top: 8px;
+            font-size: 12px;
+            text-align: center;
+            font-style: italic;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -156,8 +217,9 @@
         <textarea id="resumoTurno" placeholder="Insira o resumo do turno"></textarea>
 
         <div class="input-group">
-            <label for="foto">Anexar Fotos:</label>
-            <input type="file" id="foto" name="foto" accept="image/*" multiple>
+            <label for="fotos">Anexar Fotos:</label>
+            <input type="file" id="fotos" name="fotos" accept="image/*" multiple onchange="exibirPreviewFotos(this)">
+            <div id="fotosPreview" class="thumbnail-container"></div>
         </div>
 
         <button class="button" onclick="gerarRelatorio()">Gerar Relatório</button>
@@ -185,10 +247,10 @@
             <ul id="relatorioJustificativasParadas"></ul>
 
             <h3>📊 Resumo do Turno:</h3>
-            <p><strong>Produção:</strong> <span id="relatorioResumoTurno"></span></p>
+            <p><span id="relatorioResumoTurno"></span></p>
 
             <h3>📷 Fotos Anexadas:</h3>
-            <div id="relatorioFotosContainer"></div>
+            <div id="relatorioFotos" class="fotos-grid"></div>
 
             <div class="footer">
                 <p>Gerência de Mineração - Relatório Gerado Automaticamente</p>
@@ -198,6 +260,7 @@
 
     <script>
         let contadorPrioridade = 1;
+        let fotosArmazenadas = [];
 
         function adicionarAtividade() {
             const table = document.getElementById('prioridadesTable');
@@ -213,6 +276,79 @@
             cell2.innerHTML = '<input type="text" class="frente" placeholder="Frente de Trabalho">';
             cell3.innerHTML = '<input type="text" class="comentarios" placeholder="Comentários Gerais">';
             cell4.innerHTML = '<input type="text" class="justificativa" placeholder="Justificativa">';
+        }
+
+        function exibirPreviewFotos(input) {
+            const previewContainer = document.getElementById('fotosPreview');
+            previewContainer.innerHTML = '';
+
+            if (input.files && input.files.length > 0) {
+                for (let i = 0; i < input.files.length; i++) {
+                    const file = input.files[i];
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'foto-preview';
+                        
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'foto-preview-content';
+                        
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'thumbnail';
+                        
+                        const legenda = document.createElement('input');
+                        legenda.type = 'text';
+                        legenda.className = 'legenda-input';
+                        legenda.placeholder = 'Legenda da foto';
+                        
+                        const index = fotosArmazenadas.length;
+                        img.dataset.index = index;
+                        
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'delete-btn';
+                        deleteBtn.innerHTML = '×';
+                        deleteBtn.onclick = function() {
+                            previewDiv.remove();
+                            fotosArmazenadas = fotosArmazenadas.filter((_, idx) => idx !== index);
+                            atualizarIndicesFotos();
+                        };
+                        
+                        contentDiv.appendChild(img);
+                        contentDiv.appendChild(legenda);
+                        previewDiv.appendChild(contentDiv);
+                        previewDiv.appendChild(deleteBtn);
+                        previewContainer.appendChild(previewDiv);
+                        
+                        fotosArmazenadas.push({
+                            src: e.target.result,
+                            legenda: ''
+                        });
+                        
+                        // Atualizar a legenda quando mudar
+                        legenda.addEventListener('input', function() {
+                            fotosArmazenadas[index].legenda = this.value;
+                        });
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
+        function atualizarIndicesFotos() {
+            const previewDivs = document.querySelectorAll('#fotosPreview .foto-preview');
+            previewDivs.forEach((div, index) => {
+                const img = div.querySelector('.thumbnail');
+                const legenda = div.querySelector('.legenda-input');
+                img.dataset.index = index;
+                
+                // Reconectar evento de input
+                legenda.addEventListener('input', function() {
+                    fotosArmazenadas[index].legenda = this.value;
+                });
+            });
         }
 
         function gerarRelatorio() {
@@ -263,27 +399,40 @@
             }
 
             const relatorioJustificativasParadas = document.getElementById('relatorioJustificativasParadas');
-            relatorioJustificativasParadas.innerHTML = justificativasParadas.map(item => `<li>${item}</li>`).join('');
+            relatorioJustificativasParadas.innerHTML = justificativasParadas.filter(item => item.trim()).map(item => `<li>${item}</li>`).join('');
 
             document.getElementById('relatorioResumoTurno').innerText = resumoTurno;
 
-            const fotoInput = document.getElementById('foto');
-            const relatorioFotosContainer = document.getElementById('relatorioFotosContainer');
-            relatorioFotosContainer.innerHTML = ''; // Limpa as fotos anteriores
+            // Exibir múltiplas fotos com legendas
+            const relatorioFotosContainer = document.getElementById('relatorioFotos');
+            relatorioFotosContainer.innerHTML = '';
 
-            if (fotoInput.files && fotoInput.files.length > 0) {
-                for (let i = 0; i < fotoInput.files.length; i++) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.maxWidth = '100%';
-                        img.style.height = 'auto';
-                        img.style.marginBottom = '10px';
-                        relatorioFotosContainer.appendChild(img);
-                    };
-                    reader.readAsDataURL(fotoInput.files[i]);
-                }
+            if (fotosArmazenadas.length > 0) {
+                fotosArmazenadas.forEach((foto, index) => {
+                    const fotoDiv = document.createElement('div');
+                    fotoDiv.className = 'foto-item';
+                    
+                    const img = document.createElement('img');
+                    img.src = foto.src;
+                    img.className = 'thumbnail';
+                    img.style.width = '100%';
+                    img.style.height = 'auto';
+                    img.style.maxHeight = '200px';
+                    img.style.objectFit = 'cover';
+                    
+                    fotoDiv.appendChild(img);
+                    
+                    if (foto.legenda) {
+                        const legendaP = document.createElement('p');
+                        legendaP.className = 'foto-legenda';
+                        legendaP.textContent = foto.legenda;
+                        fotoDiv.appendChild(legendaP);
+                    }
+                    
+                    relatorioFotosContainer.appendChild(fotoDiv);
+                });
+            } else {
+                relatorioFotosContainer.innerHTML = '<p>Nenhuma foto anexada</p>';
             }
 
             document.getElementById('relatorioGerado').style.display = 'block';
@@ -341,34 +490,63 @@
                 }
             });
 
-            doc.setFontSize(12);
-            doc.text("Justificativas de Paradas:", 10, doc.autoTable.previous.finalY + 10);
-
-            const justificativasParadas = document.getElementById('relatorioJustificativasParadas').innerText.split('\n');
-            doc.text(justificativasParadas, 10, doc.autoTable.previous.finalY + 20);
+            let yPos = doc.autoTable.previous.finalY + 10;
 
             doc.setFontSize(12);
-            doc.text("Resumo do Turno:", 10, doc.autoTable.previous.finalY + 30);
-            doc.text(`Produção: ${document.getElementById('relatorioResumoTurno').innerText}`, 10, doc.autoTable.previous.finalY + 40);
+            doc.text("Justificativas de Paradas:", 10, yPos);
+            yPos += 10;
 
-            const fotoInput = document.getElementById('foto');
-            if (fotoInput.files && fotoInput.files.length > 0) {
-                let yOffset = doc.autoTable.previous.finalY + 50;
-                for (let i = 0; i < fotoInput.files.length; i++) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const imgData = e.target.result;
-                        doc.addImage(imgData, 'JPEG', 10, yOffset, 50, 50);
-                        yOffset += 60; // Ajuste a posição Y para a próxima imagem
-                        if (i === fotoInput.files.length - 1) {
-                            doc.save("relatorio.pdf");
-                        }
-                    };
-                    reader.readAsDataURL(fotoInput.files[i]);
+            const justificativasParadas = document.getElementById('justificativasParadas').value.split('\n').filter(item => item.trim());
+            justificativasParadas.forEach(item => {
+                doc.text(`- ${item}`, 10, yPos);
+                yPos += 5;
+            });
+
+            yPos += 5;
+            doc.setFontSize(12);
+            doc.text("Resumo do Turno:", 10, yPos);
+            yPos += 10;
+            
+            // Quebrar o texto do resumo para caber na página
+            const resumoTurno = document.getElementById('resumoTurno').value;
+            const splitResumo = doc.splitTextToSize(resumoTurno, 180);
+            doc.text(splitResumo, 10, yPos);
+            
+            yPos += splitResumo.length * 5 + 10;
+            
+            // Adicionar múltiplas fotos com legendas ao PDF
+            if (fotosArmazenadas.length > 0) {
+                // Se a posição estiver próxima do final da página, adicione uma nova página
+                if (yPos > 250) {
+                    doc.addPage();
+                    yPos = 20;
                 }
-            } else {
-                doc.save("relatorio.pdf");
+                
+                doc.setFontSize(12);
+                doc.text("Fotos Anexadas:", 10, yPos);
+                yPos += 10;
+                
+                fotosArmazenadas.forEach((foto, index) => {
+                    // Se a posição estiver próxima do final da página, adicione uma nova página
+                    if (yPos > 230) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    
+                    // Adicionar foto
+                    doc.addImage(foto.src, 'JPEG', 10, yPos, 70, 50);
+                    
+                    // Adicionar legenda se existir
+                    if (foto.legenda) {
+                        doc.setFontSize(8);
+                        doc.text(foto.legenda, 10, yPos + 55);
+                    }
+                    
+                    yPos += 65; // Espaço extra para a legenda
+                });
             }
+            
+            doc.save("relatorio.pdf");
         }
     </script>
 </body>
