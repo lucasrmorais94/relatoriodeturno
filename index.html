@@ -258,6 +258,32 @@
         let contadorPrioridade = 1;
         let fotosArmazenadas = [];
 
+        // Função para corrigir a orientação da imagem
+        function corrigirOrientacaoImagem(src) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Dimensões originais
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Cria o canvas com o tamanho correto
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Desenha a imagem no canvas para normalizar a orientação
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Retorna a imagem corrigida como data URL
+                    resolve(canvas.toDataURL('image/jpeg', 0.85));
+                };
+                img.src = src;
+            });
+        }
+
         function adicionarAtividade() {
             const table = document.getElementById('prioridadesTable');
             const newRow = table.insertRow(-1);
@@ -283,46 +309,49 @@
                     const file = input.files[i];
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        const previewDiv = document.createElement('div');
-                        previewDiv.className = 'foto-preview';
+                        // Corrige a orientação da imagem antes de exibir e armazenar
+                        corrigirOrientacaoImagem(e.target.result).then(imagemCorrigida => {
+                            const previewDiv = document.createElement('div');
+                            previewDiv.className = 'foto-preview';
 
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'foto-preview-content';
+                            const contentDiv = document.createElement('div');
+                            contentDiv.className = 'foto-preview-content';
 
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'thumbnail';
+                            const img = document.createElement('img');
+                            img.src = imagemCorrigida;
+                            img.className = 'thumbnail';
 
-                        const legenda = document.createElement('input');
-                        legenda.type = 'text';
-                        legenda.className = 'legenda-input';
-                        legenda.placeholder = 'Legenda da foto';
+                            const legenda = document.createElement('input');
+                            legenda.type = 'text';
+                            legenda.className = 'legenda-input';
+                            legenda.placeholder = 'Legenda da foto';
 
-                        const index = fotosArmazenadas.length;
-                        img.dataset.index = index;
+                            const index = fotosArmazenadas.length;
+                            img.dataset.index = index;
 
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'delete-btn';
-                        deleteBtn.innerHTML = '×';
-                        deleteBtn.onclick = function() {
-                            previewDiv.remove();
-                            fotosArmazenadas = fotosArmazenadas.filter((_, idx) => idx !== index);
-                            atualizarIndicesFotos();
-                        };
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.innerHTML = '×';
+                            deleteBtn.onclick = function() {
+                                previewDiv.remove();
+                                fotosArmazenadas = fotosArmazenadas.filter((_, idx) => idx !== index);
+                                atualizarIndicesFotos();
+                            };
 
-                        contentDiv.appendChild(img);
-                        contentDiv.appendChild(legenda);
-                        previewDiv.appendChild(contentDiv);
-                        previewDiv.appendChild(deleteBtn);
-                        previewContainer.appendChild(previewDiv);
+                            contentDiv.appendChild(img);
+                            contentDiv.appendChild(legenda);
+                            previewDiv.appendChild(contentDiv);
+                            previewDiv.appendChild(deleteBtn);
+                            previewContainer.appendChild(previewDiv);
 
-                        fotosArmazenadas.push({
-                            src: e.target.result,
-                            legenda: ''
-                        });
+                            fotosArmazenadas.push({
+                                src: imagemCorrigida,
+                                legenda: ''
+                            });
 
-                        legenda.addEventListener('input', function() {
-                            fotosArmazenadas[index].legenda = this.value;
+                            legenda.addEventListener('input', function() {
+                                fotosArmazenadas[index].legenda = this.value;
+                            });
                         });
                     };
                     reader.readAsDataURL(file);
