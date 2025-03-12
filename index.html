@@ -18,6 +18,14 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            max-width: 250px;
+            height: auto;
+        }
         h2 {
             background: #191970; /* Azul midnight */
             color: white;
@@ -150,12 +158,26 @@
             text-align: center;
             font-style: italic;
         }
+        .description-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #191970;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #555;
+            border-radius: 0 4px 4px 0;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.24/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <div class="container">
+        <div class="logo-container">
+            <!-- Substitua o src pela URL da sua logo -->
+            <img src="https://assets.foleon.com/eu-west-2/uploads-7e3kk3/6245/anglo_american_logo_rgb_4c.4b0bc5e9ab04.png" alt="Logo da Empresa" class="logo" id="empresaLogo">
+        </div>
+        
         <h2>📋 Relatório de Atividades</h2>
 
         <div class="input-group">
@@ -195,6 +217,9 @@
         </div>
 
         <h3>📌 Prioridades do Turno:</h3>
+        <div class="description-box">
+            <strong>Atenção:</strong> As frentes de trabalho deverão ser adicionadas seguindo a sequência de prioridades da ATA atualizada.
+        </div>
         <button class="button add-activity-button" onclick="adicionarAtividade()">➕ Adicionar Frente de Trabalho</button>
         <table id="prioridadesTable">
             <tr>
@@ -227,6 +252,11 @@
         <button class="button" onclick="gerarPDF()">Gerar PDF</button>
 
         <div id="relatorioGerado" class="container" style="display: none;">
+            <div class="logo-container">
+                <!-- Substitua o src pela URL da sua logo -->
+                <img src="logo.png" alt="Logo da Empresa" class="logo">
+            </div>
+            
             <h2>📋 Relatório de Atividades</h2>
 
             <p><strong>Data:</strong> <span id="relatorioData"></span></p>
@@ -263,6 +293,29 @@
     <script>
         let contadorPrioridade = 1;
         let fotosArmazenadas = [];
+        let logoBase64 = '';  // Para armazenar a logo em base64
+
+        // Função para converter a logo para base64
+        window.onload = function() {
+            const logoImg = document.getElementById('empresaLogo');
+            logoImg.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = logoImg.width;
+                canvas.height = logoImg.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(logoImg, 0, 0);
+                try {
+                    logoBase64 = canvas.toDataURL('image/png');
+                } catch(e) {
+                    console.error("Erro ao converter logo para base64:", e);
+                }
+            };
+            // Para lidar com erros de carregamento de imagem (CORS, etc)
+            logoImg.onerror = function() {
+                console.warn("Não foi possível carregar a logo. Usando uma logo em branco.");
+                logoBase64 = '';
+            };
+        };
 
         // Função para corrigir a orientação da imagem
         function corrigirOrientacaoImagem(src) {
@@ -466,22 +519,31 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
+            // Adicionar logo no topo esquerdo (se disponível)
+            if (logoBase64) {
+                try {
+                    doc.addImage(logoBase64, 'PNG', 10, 10, 30, 15);
+                } catch(e) {
+                    console.error("Erro ao adicionar logo ao PDF:", e);
+                }
+            }
+
             // Título principal
             doc.setFont(undefined, 'bold');
             doc.setFontSize(14);
-            doc.text("Relatório de Atividades", 10, 10);
+            doc.text("Relatório de Atividades", 50, 15);
 
             // Dados do relatório
             doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
-            doc.text("Data:", 10, 20);
+            doc.text("Data:", 10, 30);
             doc.setFont(undefined, 'normal');
-            doc.text(`${document.getElementById('data').value}`, 30, 20);
+            doc.text(`${document.getElementById('data').value}`, 30, 30);
 
             doc.setFont(undefined, 'bold');
-            doc.text("Área:", 10, 30);
+            doc.text("Área:", 10, 40);
             doc.setFont(undefined, 'normal');
-            doc.text(`${document.getElementById('area').value}`, 30, 30);
+            doc.text(`${document.getElementById('area').value}`, 30, 40);
 
             const turnoDescricao = {
                 'A': 'Turno A',
@@ -491,24 +553,24 @@
             };
             const turno = document.getElementById('turno').value;
             doc.setFont(undefined, 'bold');
-            doc.text("Turno:", 10, 40);
+            doc.text("Turno:", 10, 50);
             doc.setFont(undefined, 'normal');
-            doc.text(`${turnoDescricao[turno]}`, 30, 40);
+            doc.text(`${turnoDescricao[turno]}`, 30, 50);
 
             doc.setFont(undefined, 'bold');
-            doc.text("Período:", 10, 50);
+            doc.text("Período:", 10, 60);
             doc.setFont(undefined, 'normal');
-            doc.text(`${document.getElementById('periodo').value}`, 30, 50);
+            doc.text(`${document.getElementById('periodo').value}`, 30, 60);
 
             doc.setFont(undefined, 'bold');
-            doc.text("Responsável:", 10, 60);
+            doc.text("Responsável:", 10, 70);
             doc.setFont(undefined, 'normal');
-            doc.text(`${document.getElementById('responsavel').value}`, 35, 60);
+            doc.text(`${document.getElementById('responsavel').value}`, 35, 70);
 
             // Prioridades do Turno
             doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
-            doc.text("Prioridades do Turno:", 10, 70);
+            doc.text("Prioridades do Turno:", 10, 80);
 
             const prioridadesTable = document.getElementById('relatorioPrioridadesTable');
             const prioridadesData = [];
@@ -523,7 +585,7 @@
             }
 
             doc.autoTable({
-                startY: 80,
+                startY: 90,
                 head: [['Prioridade', 'Frente de Trabalho', 'Comentários Gerais', 'Justificativa']],
                 body: prioridadesData,
                 styles: { fontSize: 8 },
@@ -573,7 +635,15 @@
             if (fotosArmazenadas.length > 0) {
                 if (yPos > 250) {
                     doc.addPage();
-                    yPos = 20;
+                    // Adicionar logo no topo esquerdo da nova página (se disponível)
+                    if (logoBase64) {
+                        try {
+                            doc.addImage(logoBase64, 'PNG', 10, 10, 30, 15);
+                        } catch(e) {
+                            console.error("Erro ao adicionar logo ao PDF na nova página:", e);
+                        }
+                    }
+                    yPos = 30;
                 }
 
                 doc.setFont(undefined, 'bold');
@@ -590,7 +660,15 @@
                 for (let i = 0; i < fotosArmazenadas.length; i += 2) {
                     if (yPos > 230) {
                         doc.addPage();
-                        yPos = 20;
+                        // Adicionar logo no topo esquerdo da nova página (se disponível)
+                        if (logoBase64) {
+                            try {
+                                doc.addImage(logoBase64, 'PNG', 10, 10, 30, 15);
+                            } catch(e) {
+                                console.error("Erro ao adicionar logo ao PDF na nova página de fotos:", e);
+                            }
+                        }
+                        yPos = 30;
                     }
 
                     let rowHeight = 0;
