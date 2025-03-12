@@ -189,6 +189,11 @@
             </select>
         </div>
 
+        <div class="input-group">
+            <label for="responsavel">Responsável:</label>
+            <input type="text" id="responsavel" name="responsavel" placeholder="Nome do responsável">
+        </div>
+
         <h3>📌 Prioridades do Turno:</h3>
         <button class="button add-activity-button" onclick="adicionarAtividade()">➕ Adicionar Frente de Trabalho</button>
         <table id="prioridadesTable">
@@ -228,6 +233,7 @@
             <p><strong>Área:</strong> <span id="relatorioArea"></span></p>
             <p><strong>Turno:</strong> <span id="relatorioTurno"></span></p>
             <p><strong>Período:</strong> <span id="relatorioPeriodo"></span></p>
+            <p><strong>Responsável:</strong> <span id="relatorioResponsavel"></span></p>
 
             <h3>📌 Prioridades do Turno:</h3>
             <table id="relatorioPrioridadesTable">
@@ -377,6 +383,7 @@
             const area = document.getElementById('area').value;
             const turno = document.getElementById('turno').value;
             const periodo = document.getElementById('periodo').value;
+            const responsavel = document.getElementById('responsavel').value;
 
             document.getElementById('relatorioData').innerText = data;
             document.getElementById('relatorioArea').innerText = area;
@@ -389,6 +396,7 @@
             };
             document.getElementById('relatorioTurno').innerText = turnoDescricao[turno];
             document.getElementById('relatorioPeriodo').innerText = periodo;
+            document.getElementById('relatorioResponsavel').innerText = responsavel;
 
             const relatorioPrioridadesTable = document.getElementById('relatorioPrioridadesTable');
             relatorioPrioridadesTable.innerHTML = `
@@ -492,10 +500,15 @@
             doc.setFont(undefined, 'normal');
             doc.text(`${document.getElementById('periodo').value}`, 30, 50);
 
+            doc.setFont(undefined, 'bold');
+            doc.text("Responsável:", 10, 60);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${document.getElementById('responsavel').value}`, 35, 60);
+
             // Prioridades do Turno
             doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
-            doc.text("Prioridades do Turno:", 10, 60);
+            doc.text("Prioridades do Turno:", 10, 70);
 
             const prioridadesTable = document.getElementById('relatorioPrioridadesTable');
             const prioridadesData = [];
@@ -510,7 +523,7 @@
             }
 
             doc.autoTable({
-                startY: 70,
+                startY: 80,
                 head: [['Prioridade', 'Frente de Trabalho', 'Comentários Gerais', 'Justificativa']],
                 body: prioridadesData,
                 styles: { fontSize: 8 },
