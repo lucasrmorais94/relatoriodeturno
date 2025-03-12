@@ -19,7 +19,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         h2 {
-            background: #007bff;
+            background: #191970; /* Azul midnight */
             color: white;
             padding: 10px;
             text-align: center;
@@ -38,7 +38,7 @@
             text-align: left;
         }
         th {
-            background: #007bff;
+            background: #191970; /* Azul midnight */
             color: white;
         }
         .footer {
@@ -69,7 +69,7 @@
             height: 80px;
         }
         .button {
-            background-color: #007bff;
+            background-color: #191970; /* Azul midnight */
             color: white;
             padding: 8px 16px;
             border: none;
@@ -78,14 +78,11 @@
             font-size: 12px;
         }
         .button:hover {
-            background-color: #0056b3;
+            background-color: #0F0F4B; /* Azul mais escuro */
         }
         .add-activity-button {
             background-color: #28a745;
             margin-bottom: 10px;
-        }
-        .input-group input[type="file"] {
-            font-size: 10px;
         }
         .thumbnail-container {
             display: flex;
@@ -158,7 +155,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.24/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-
     <div class="container">
         <h2>📋 Relatório de Atividades</h2>
 
@@ -285,27 +281,26 @@
             if (input.files && input.files.length > 0) {
                 for (let i = 0; i < input.files.length; i++) {
                     const file = input.files[i];
-                    
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const previewDiv = document.createElement('div');
                         previewDiv.className = 'foto-preview';
-                        
+
                         const contentDiv = document.createElement('div');
                         contentDiv.className = 'foto-preview-content';
-                        
+
                         const img = document.createElement('img');
                         img.src = e.target.result;
                         img.className = 'thumbnail';
-                        
+
                         const legenda = document.createElement('input');
                         legenda.type = 'text';
                         legenda.className = 'legenda-input';
                         legenda.placeholder = 'Legenda da foto';
-                        
+
                         const index = fotosArmazenadas.length;
                         img.dataset.index = index;
-                        
+
                         const deleteBtn = document.createElement('button');
                         deleteBtn.className = 'delete-btn';
                         deleteBtn.innerHTML = '×';
@@ -314,24 +309,22 @@
                             fotosArmazenadas = fotosArmazenadas.filter((_, idx) => idx !== index);
                             atualizarIndicesFotos();
                         };
-                        
+
                         contentDiv.appendChild(img);
                         contentDiv.appendChild(legenda);
                         previewDiv.appendChild(contentDiv);
                         previewDiv.appendChild(deleteBtn);
                         previewContainer.appendChild(previewDiv);
-                        
+
                         fotosArmazenadas.push({
                             src: e.target.result,
                             legenda: ''
                         });
-                        
-                        // Atualizar a legenda quando mudar
+
                         legenda.addEventListener('input', function() {
                             fotosArmazenadas[index].legenda = this.value;
                         });
                     };
-                    
                     reader.readAsDataURL(file);
                 }
             }
@@ -343,8 +336,7 @@
                 const img = div.querySelector('.thumbnail');
                 const legenda = div.querySelector('.legenda-input');
                 img.dataset.index = index;
-                
-                // Reconectar evento de input
+
                 legenda.addEventListener('input', function() {
                     fotosArmazenadas[index].legenda = this.value;
                 });
@@ -356,13 +348,6 @@
             const area = document.getElementById('area').value;
             const turno = document.getElementById('turno').value;
             const periodo = document.getElementById('periodo').value;
-
-            const frentes = document.querySelectorAll('.frente');
-            const comentarios = document.querySelectorAll('.comentarios');
-            const justificativas = document.querySelectorAll('.justificativa');
-
-            const justificativasParadas = document.getElementById('justificativasParadas').value.split('\n');
-            const resumoTurno = document.getElementById('resumoTurno').value;
 
             document.getElementById('relatorioData').innerText = data;
             document.getElementById('relatorioArea').innerText = area;
@@ -386,32 +371,34 @@
                 </tr>
             `;
 
-            const prioridades = document.querySelectorAll('#prioridadesTable tr td:nth-child(1)');
-            for (let i = 1; i < prioridades.length; i++) {
+            const frentes = document.querySelectorAll('.frente');
+            const comentarios = document.querySelectorAll('.comentarios');
+            const justificativas = document.querySelectorAll('.justificativa');
+
+            for (let i = 0; i < frentes.length; i++) {
                 relatorioPrioridadesTable.innerHTML += `
                     <tr>
-                        <td>${prioridades[i].innerText}</td>
-                        <td>${frentes[i - 1].value}</td>
-                        <td>${comentarios[i - 1].value}</td>
-                        <td>${justificativas[i - 1].value}</td>
+                        <td>${i + 1}</td>
+                        <td>${frentes[i].value}</td>
+                        <td>${comentarios[i].value}</td>
+                        <td>${justificativas[i].value}</td>
                     </tr>
                 `;
             }
 
-            const relatorioJustificativasParadas = document.getElementById('relatorioJustificativasParadas');
-            relatorioJustificativasParadas.innerHTML = justificativasParadas.filter(item => item.trim()).map(item => `<li>${item}</li>`).join('');
+            const justificativasParadas = document.getElementById('justificativasParadas').value.split('\n').filter(item => item.trim());
+            document.getElementById('relatorioJustificativasParadas').innerHTML = justificativasParadas.map(item => `<li>${item}</li>`).join('');
 
-            document.getElementById('relatorioResumoTurno').innerText = resumoTurno;
+            document.getElementById('relatorioResumoTurno').innerText = document.getElementById('resumoTurno').value;
 
-            // Exibir múltiplas fotos com legendas
             const relatorioFotosContainer = document.getElementById('relatorioFotos');
             relatorioFotosContainer.innerHTML = '';
 
             if (fotosArmazenadas.length > 0) {
-                fotosArmazenadas.forEach((foto, index) => {
+                fotosArmazenadas.forEach(foto => {
                     const fotoDiv = document.createElement('div');
                     fotoDiv.className = 'foto-item';
-                    
+
                     const img = document.createElement('img');
                     img.src = foto.src;
                     img.className = 'thumbnail';
@@ -419,16 +406,16 @@
                     img.style.height = 'auto';
                     img.style.maxHeight = '200px';
                     img.style.objectFit = 'cover';
-                    
+
                     fotoDiv.appendChild(img);
-                    
+
                     if (foto.legenda) {
                         const legendaP = document.createElement('p');
                         legendaP.className = 'foto-legenda';
                         legendaP.textContent = foto.legenda;
                         fotoDiv.appendChild(legendaP);
                     }
-                    
+
                     relatorioFotosContainer.appendChild(fotoDiv);
                 });
             } else {
@@ -442,14 +429,22 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            doc.setFontSize(10);
-
+            // Título principal
+            doc.setFont(undefined, 'bold');
             doc.setFontSize(14);
             doc.text("Relatório de Atividades", 10, 10);
 
+            // Dados do relatório
             doc.setFontSize(10);
-            doc.text(`Data: ${document.getElementById('relatorioData').innerText}`, 10, 20);
-            doc.text(`Área: ${document.getElementById('relatorioArea').innerText}`, 10, 30);
+            doc.setFont(undefined, 'bold');
+            doc.text("Data:", 10, 20);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${document.getElementById('data').value}`, 30, 20);
+
+            doc.setFont(undefined, 'bold');
+            doc.text("Área:", 10, 30);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${document.getElementById('area').value}`, 30, 30);
 
             const turnoDescricao = {
                 'A': 'Turno A',
@@ -458,9 +453,18 @@
                 'D': 'Turno D'
             };
             const turno = document.getElementById('turno').value;
-            doc.text(`Turno: ${turnoDescricao[turno]}`, 10, 40);
-            doc.text(`Período: ${document.getElementById('periodo').value}`, 10, 50);
+            doc.setFont(undefined, 'bold');
+            doc.text("Turno:", 10, 40);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${turnoDescricao[turno]}`, 30, 40);
 
+            doc.setFont(undefined, 'bold');
+            doc.text("Período:", 10, 50);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${document.getElementById('periodo').value}`, 30, 50);
+
+            // Prioridades do Turno
+            doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
             doc.text("Prioridades do Turno:", 10, 60);
 
@@ -481,6 +485,7 @@
                 head: [['Prioridade', 'Frente de Trabalho', 'Comentários Gerais', 'Justificativa']],
                 body: prioridadesData,
                 styles: { fontSize: 8 },
+                headStyles: { fontStyle: 'bold' },
                 margin: { top: 10 },
                 columnStyles: {
                     0: { cellWidth: 20 },
@@ -492,10 +497,14 @@
 
             let yPos = doc.autoTable.previous.finalY + 10;
 
+            // Justificativas de Paradas
+            doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
             doc.text("Justificativas de Paradas:", 10, yPos);
             yPos += 10;
 
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
             const justificativasParadas = document.getElementById('justificativasParadas').value.split('\n').filter(item => item.trim());
             justificativasParadas.forEach(item => {
                 doc.text(`- ${item}`, 10, yPos);
@@ -503,49 +512,104 @@
             });
 
             yPos += 5;
+
+            // Resumo do Turno
+            doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
             doc.text("Resumo do Turno:", 10, yPos);
             yPos += 10;
-            
-            // Quebrar o texto do resumo para caber na página
+
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
             const resumoTurno = document.getElementById('resumoTurno').value;
             const splitResumo = doc.splitTextToSize(resumoTurno, 180);
             doc.text(splitResumo, 10, yPos);
-            
+
             yPos += splitResumo.length * 5 + 10;
-            
-            // Adicionar múltiplas fotos com legendas ao PDF
+
+            // Fotos Anexadas
             if (fotosArmazenadas.length > 0) {
-                // Se a posição estiver próxima do final da página, adicione uma nova página
                 if (yPos > 250) {
                     doc.addPage();
                     yPos = 20;
                 }
-                
+
+                doc.setFont(undefined, 'bold');
                 doc.setFontSize(12);
                 doc.text("Fotos Anexadas:", 10, yPos);
                 yPos += 10;
-                
-                fotosArmazenadas.forEach((foto, index) => {
-                    // Se a posição estiver próxima do final da página, adicione uma nova página
+
+                const pageWidth = doc.internal.pageSize.width;
+                const margin = 10;
+                const gutter = 10;
+                const maxPhotoWidth = (pageWidth - 2 * margin - gutter) / 2;
+                const maxPhotoHeight = 60;
+
+                for (let i = 0; i < fotosArmazenadas.length; i += 2) {
                     if (yPos > 230) {
                         doc.addPage();
                         yPos = 20;
                     }
-                    
-                    // Adicionar foto
-                    doc.addImage(foto.src, 'JPEG', 10, yPos, 70, 50);
-                    
-                    // Adicionar legenda se existir
-                    if (foto.legenda) {
-                        doc.setFontSize(8);
-                        doc.text(foto.legenda, 10, yPos + 55);
+
+                    let rowHeight = 0;
+
+                    if (i < fotosArmazenadas.length) {
+                        const foto1 = fotosArmazenadas[i];
+                        const img1 = new Image();
+                        img1.src = foto1.src;
+
+                        let imgWidth1 = img1.width;
+                        let imgHeight1 = img1.height;
+                        const ratio1 = Math.min(maxPhotoWidth / imgWidth1, maxPhotoHeight / imgHeight1);
+                        imgWidth1 = imgWidth1 * ratio1;
+                        imgHeight1 = imgHeight1 * ratio1;
+
+                        doc.addImage(foto1.src, 'JPEG', margin, yPos, imgWidth1, imgHeight1);
+
+                        if (foto1.legenda) {
+                            doc.setFont(undefined, 'italic');
+                            doc.setFontSize(8);
+                            const legendaY1 = yPos + imgHeight1 + 5;
+                            const splitLegenda1 = doc.splitTextToSize(foto1.legenda, maxPhotoWidth);
+                            doc.text(splitLegenda1, margin, legendaY1);
+                            doc.setFont(undefined, 'normal');
+                            rowHeight = Math.max(rowHeight, imgHeight1 + 5 + splitLegenda1.length * 4);
+                        } else {
+                            rowHeight = Math.max(rowHeight, imgHeight1);
+                        }
                     }
-                    
-                    yPos += 65; // Espaço extra para a legenda
-                });
+
+                    if (i + 1 < fotosArmazenadas.length) {
+                        const foto2 = fotosArmazenadas[i + 1];
+                        const img2 = new Image();
+                        img2.src = foto2.src;
+
+                        let imgWidth2 = img2.width;
+                        let imgHeight2 = img2.height;
+                        const ratio2 = Math.min(maxPhotoWidth / imgWidth2, maxPhotoHeight / imgHeight2);
+                        imgWidth2 = imgWidth2 * ratio2;
+                        imgHeight2 = imgHeight2 * ratio2;
+
+                        const xPos2 = margin + maxPhotoWidth + gutter;
+                        doc.addImage(foto2.src, 'JPEG', xPos2, yPos, imgWidth2, imgHeight2);
+
+                        if (foto2.legenda) {
+                            doc.setFont(undefined, 'italic');
+                            doc.setFontSize(8);
+                            const legendaY2 = yPos + imgHeight2 + 5;
+                            const splitLegenda2 = doc.splitTextToSize(foto2.legenda, maxPhotoWidth);
+                            doc.text(splitLegenda2, xPos2, legendaY2);
+                            doc.setFont(undefined, 'normal');
+                            rowHeight = Math.max(rowHeight, imgHeight2 + 5 + splitLegenda2.length * 4);
+                        } else {
+                            rowHeight = Math.max(rowHeight, imgHeight2);
+                        }
+                    }
+
+                    yPos += rowHeight + 15;
+                }
             }
-            
+
             doc.save("relatorio.pdf");
         }
     </script>
