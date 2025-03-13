@@ -174,7 +174,6 @@
 <body>
     <div class="container">
         <div class="logo-container">
-            <!-- Substitua o src pela URL da sua logo -->
             <img src="https://assets.foleon.com/eu-west-2/uploads-7e3kk3/6245/anglo_american_logo_rgb_4c.4b0bc5e9ab04.png" alt="Logo da Empresa" class="logo" id="empresaLogo">
         </div>
         
@@ -230,7 +229,25 @@
             </tr>
             <tr>
                 <td>1</td>
-                <td><input type="text" class="frente" placeholder="Frente de Trabalho"></td>
+                <td>
+                    <select class="frente">
+                        <option value="514">514</option>
+                        <option value="123">123</option>
+                        <option value="153">153</option>
+                        <option value="2.1A/Form">2.1A/Form</option>
+                        <option value="2.1E/Form">2.1E/Form</option>
+                        <option value="1.6A">1.6A</option>
+                        <option value="146">146</option>
+                        <option value="147">147</option>
+                        <option value="313">313</option>
+                        <option value="315">315</option>
+                        <option value="220">220</option>
+                        <option value="232">232</option>
+                        <option value="412">412</option>
+                        <option value="114">114</option>
+                        <option value="251">251</option>
+                    </select>
+                </td>
                 <td><input type="text" class="comentarios" placeholder="Comentários Gerais"></td>
                 <td><input type="text" class="justificativa" placeholder="Justificativa"></td>
             </tr>
@@ -253,7 +270,6 @@
 
         <div id="relatorioGerado" class="container" style="display: none;">
             <div class="logo-container">
-                <!-- Substitua o src pela URL da sua logo -->
                 <img src="logo.png" alt="Logo da Empresa" class="logo">
             </div>
             
@@ -293,9 +309,8 @@
     <script>
         let contadorPrioridade = 1;
         let fotosArmazenadas = [];
-        let logoBase64 = '';  // Para armazenar a logo em base64
+        let logoBase64 = '';
 
-        // Função para converter a logo para base64
         window.onload = function() {
             const logoImg = document.getElementById('empresaLogo');
             logoImg.onload = function() {
@@ -310,33 +325,23 @@
                     console.error("Erro ao converter logo para base64:", e);
                 }
             };
-            // Para lidar com erros de carregamento de imagem (CORS, etc)
             logoImg.onerror = function() {
                 console.warn("Não foi possível carregar a logo. Usando uma logo em branco.");
                 logoBase64 = '';
             };
         };
 
-        // Função para corrigir a orientação da imagem
         function corrigirOrientacaoImagem(src) {
             return new Promise((resolve) => {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    
-                    // Dimensões originais
                     let width = img.width;
                     let height = img.height;
-                    
-                    // Cria o canvas com o tamanho correto
                     canvas.width = width;
                     canvas.height = height;
-                    
-                    // Desenha a imagem no canvas para normalizar a orientação
                     ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Retorna a imagem corrigida como data URL
                     resolve(canvas.toDataURL('image/jpeg', 0.85));
                 };
                 img.src = src;
@@ -354,7 +359,25 @@
 
             contadorPrioridade++;
             cell1.innerText = contadorPrioridade;
-            cell2.innerHTML = '<input type="text" class="frente" placeholder="Frente de Trabalho">';
+            cell2.innerHTML = `
+                <select class="frente">
+                    <option value="514">514</option>
+                    <option value="123">123</option>
+                    <option value="153">153</option>
+                    <option value="2.1A/Form">2.1A/Form</option>
+                    <option value="2.1E/Form">2.1E/Form</option>
+                    <option value="1.6A">1.6A</option>
+                    <option value="146">146</option>
+                    <option value="147">147</option>
+                    <option value="313">313</option>
+                    <option value="315">315</option>
+                    <option value="220">220</option>
+                    <option value="232">232</option>
+                    <option value="412">412</option>
+                    <option value="114">114</option>
+                    <option value="251">251</option>
+                </select>
+            `;
             cell3.innerHTML = '<input type="text" class="comentarios" placeholder="Comentários Gerais">';
             cell4.innerHTML = '<input type="text" class="justificativa" placeholder="Justificativa">';
         }
@@ -368,7 +391,6 @@
                     const file = input.files[i];
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        // Corrige a orientação da imagem antes de exibir e armazenar
                         corrigirOrientacaoImagem(e.target.result).then(imagemCorrigida => {
                             const previewDiv = document.createElement('div');
                             previewDiv.className = 'foto-preview';
@@ -519,7 +541,6 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // Adicionar logo no topo esquerdo (se disponível)
             if (logoBase64) {
                 try {
                     doc.addImage(logoBase64, 'PNG', 10, 10, 30, 15);
@@ -528,12 +549,10 @@
                 }
             }
 
-            // Título principal
             doc.setFont(undefined, 'bold');
             doc.setFontSize(14);
             doc.text("Relatório de Atividades", 50, 15);
 
-            // Dados do relatório
             doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
             doc.text("Data:", 10, 30);
@@ -567,7 +586,6 @@
             doc.setFont(undefined, 'normal');
             doc.text(`${document.getElementById('responsavel').value}`, 35, 70);
 
-            // Prioridades do Turno
             doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
             doc.text("Prioridades do Turno:", 10, 80);
@@ -601,7 +619,6 @@
 
             let yPos = doc.autoTable.previous.finalY + 10;
 
-            // Justificativas de Paradas
             doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
             doc.text("Justificativas de Paradas:", 10, yPos);
@@ -617,7 +634,6 @@
 
             yPos += 5;
 
-            // Resumo do Turno
             doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
             doc.text("Resumo do Turno:", 10, yPos);
@@ -631,11 +647,9 @@
 
             yPos += splitResumo.length * 5 + 10;
 
-            // Fotos Anexadas
             if (fotosArmazenadas.length > 0) {
                 if (yPos > 250) {
                     doc.addPage();
-                    // Adicionar logo no topo esquerdo da nova página (se disponível)
                     if (logoBase64) {
                         try {
                             doc.addImage(logoBase64, 'PNG', 10, 10, 30, 15);
@@ -660,7 +674,6 @@
                 for (let i = 0; i < fotosArmazenadas.length; i += 2) {
                     if (yPos > 230) {
                         doc.addPage();
-                        // Adicionar logo no topo esquerdo da nova página (se disponível)
                         if (logoBase64) {
                             try {
                                 doc.addImage(logoBase64, 'PNG', 10, 10, 30, 15);
