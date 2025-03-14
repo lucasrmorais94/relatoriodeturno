@@ -652,7 +652,7 @@
                     doc.addPage();
                     if (logoBase64) {
                         try {
-                            doc.addImage(logoBase64, 'PNG', 10, 10, 30, 15);
+                            doc.addImage(logoBase64, 'PNG', 20, 20, 30, 15);
                         } catch(e) {
                             console.error("Erro ao adicionar logo ao PDF na nova página:", e);
                         }
@@ -676,7 +676,7 @@
                         doc.addPage();
                         if (logoBase64) {
                             try {
-                                doc.addImage(logoBase64, 'PNG', 10, 10, 30, 15);
+                                doc.addImage(logoBase64, 'PNG', 20, 20, 30, 15);
                             } catch(e) {
                                 console.error("Erro ao adicionar logo ao PDF na nova página de fotos:", e);
                             }
