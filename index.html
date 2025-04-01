@@ -167,6 +167,14 @@
             color: #555;
             border-radius: 0 4px 4px 0;
         }
+        .remove-btn {
+            background-color: #dc3545;
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.24/jspdf.plugin.autotable.min.js"></script>
@@ -239,6 +247,7 @@
                 <th>Frente de Trabalho</th>
                 <th>Comentários Gerais</th>
                 <th>Justificativa</th>
+                <th>Ações</th>
             </tr>
             <tr>
                 <td>1</td>
@@ -268,6 +277,7 @@
                 </td>
                 <td><input type="text" class="comentarios" placeholder="Comentários Gerais"></td>
                 <td><input type="text" class="justificativa" placeholder="Justificativa"></td>
+                <td><button class="button remove-btn" onclick="removerLinha(this)">Remover</button></td>
             </tr>
         </table>
 
@@ -374,6 +384,7 @@
             const cell2 = newRow.insertCell(1);
             const cell3 = newRow.insertCell(2);
             const cell4 = newRow.insertCell(3);
+            const cell5 = newRow.insertCell(4);
 
             contadorPrioridade++;
             cell1.innerText = contadorPrioridade;
@@ -403,6 +414,28 @@
             `;
             cell3.innerHTML = '<input type="text" class="comentarios" placeholder="Comentários Gerais">';
             cell4.innerHTML = '<input type="text" class="justificativa" placeholder="Justificativa">';
+            cell5.innerHTML = '<button class="button remove-btn" onclick="removerLinha(this)">Remover</button>';
+        }
+
+        function removerLinha(button) {
+            const row = button.parentNode.parentNode;
+            const table = document.getElementById('prioridadesTable');
+            
+            if (row.rowIndex > 1) {
+                table.deleteRow(row.rowIndex);
+                atualizarNumerosPrioridade();
+            }
+        }
+
+        function atualizarNumerosPrioridade() {
+            const table = document.getElementById('prioridadesTable');
+            const rows = table.rows;
+            
+            for (let i = 1; i < rows.length; i++) {
+                rows[i].cells[0].innerText = i;
+            }
+            
+            contadorPrioridade = rows.length - 1;
         }
 
         function exibirPreviewFotos(input) {
