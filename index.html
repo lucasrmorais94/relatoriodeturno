@@ -175,6 +175,16 @@
         .remove-btn:hover {
             background-color: #c82333;
         }
+        .outros-texto {
+            display: none;
+            margin-top: 5px;
+            width: 100%;
+            padding: 6px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 10px;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.24/jspdf.plugin.autotable.min.js"></script>
@@ -252,7 +262,7 @@
             <tr>
                 <td>1</td>
                 <td>
-                    <select class="frente">
+                    <select class="frente" onchange="verificarOutros(this)">
                         <option value="514">514</option>
                         <option value="124">124</option>
                         <option value="123">123</option>
@@ -273,7 +283,9 @@
                         <option value="251">251</option>
                         <option value="255">255</option>
                         <option value="115">115</option>
+                        <option value="Outros">Outros</option>
                     </select>
+                    <input type="text" class="outros-texto" placeholder="Digite a frente de trabalho">
                 </td>
                 <td><input type="text" class="comentarios" placeholder="Comentários Gerais"></td>
                 <td><input type="text" class="justificativa" placeholder="Justificativa"></td>
@@ -376,6 +388,17 @@
             });
         }
 
+        function verificarOutros(select) {
+            const outrosInput = select.parentNode.querySelector('.outros-texto');
+            if (select.value === 'Outros') {
+                outrosInput.style.display = 'block';
+                outrosInput.required = true;
+            } else {
+                outrosInput.style.display = 'none';
+                outrosInput.required = false;
+            }
+        }
+
         function adicionarAtividade() {
             const table = document.getElementById('prioridadesTable');
             const newRow = table.insertRow(-1);
@@ -389,28 +412,30 @@
             contadorPrioridade++;
             cell1.innerText = contadorPrioridade;
             cell2.innerHTML = `
-                <select class="frente">
-                  <option value="514">514</option>
-                  <option value="124">124</option>
-                  <option value="123">123</option>
-                  <option value="153">153</option>
-                  <option value="1.FC">1.1FC</option>
-                  <option value="2.1A">2.1A</option>
-                  <option value="2.1E">2.1E</option>
-                  <option value="3.1D">3.1D</option>
-                  <option value="1.6A">1.6A</option>
-                  <option value="114">114</option>
-                  <option value="146">146</option>
-                  <option value="147">147</option>
-                  <option value="313">313</option>
-                  <option value="315">315</option>
-                  <option value="220">220</option>
-                  <option value="232">232</option>
-                  <option value="412">412</option>
-                  <option value="251">251</option>
-                  <option value="255">255</option>
-                  <option value="115">115</option>
+                <select class="frente" onchange="verificarOutros(this)">
+                    <option value="514">514</option>
+                    <option value="124">124</option>
+                    <option value="123">123</option>
+                    <option value="153">153</option>
+                    <option value="1.FC">1.1FC</option>
+                    <option value="2.1A">2.1A</option>
+                    <option value="2.1E">2.1E</option>
+                    <option value="3.1D">3.1D</option>
+                    <option value="1.6A">1.6A</option>
+                    <option value="114">114</option>
+                    <option value="146">146</option>
+                    <option value="147">147</option>
+                    <option value="313">313</option>
+                    <option value="315">315</option>
+                    <option value="220">220</option>
+                    <option value="232">232</option>
+                    <option value="412">412</option>
+                    <option value="251">251</option>
+                    <option value="255">255</option>
+                    <option value="115">115</option>
+                    <option value="Outros">Outros</option>
                 </select>
+                <input type="text" class="outros-texto" placeholder="Digite a frente de trabalho">
             `;
             cell3.innerHTML = '<input type="text" class="comentarios" placeholder="Comentários Gerais">';
             cell4.innerHTML = '<input type="text" class="justificativa" placeholder="Justificativa">';
@@ -540,14 +565,20 @@
             `;
 
             const frentes = document.querySelectorAll('.frente');
+            const outrosTextos = document.querySelectorAll('.outros-texto');
             const comentarios = document.querySelectorAll('.comentarios');
             const justificativas = document.querySelectorAll('.justificativa');
 
             for (let i = 0; i < frentes.length; i++) {
+                let frenteValue = frentes[i].value;
+                if (frentes[i].value === 'Outros' && outrosTextos[i].value) {
+                    frenteValue = outrosTextos[i].value;
+                }
+
                 relatorioPrioridadesTable.innerHTML += `
                     <tr>
                         <td>${i + 1}</td>
-                        <td>${frentes[i].value}</td>
+                        <td>${frenteValue}</td>
                         <td>${comentarios[i].value}</td>
                         <td>${justificativas[i].value}</td>
                     </tr>
@@ -605,9 +636,14 @@
                 }
             }
 
+            // Centralizar o título
+            const pageWidth = doc.internal.pageSize.width;
+            const titleWidth = doc.getStringUnitWidth("Relatório de Atividades") * doc.internal.getFontSize() / doc.internal.scaleFactor;
+            const titleX = (pageWidth - titleWidth) / 2;
+            
             doc.setFont(undefined, 'bold');
             doc.setFontSize(14);
-            doc.text("Relatório de Atividades", 50, 15);
+            doc.text("Relatório de Atividades", titleX, 15);
 
             doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
@@ -646,15 +682,23 @@
             doc.setFontSize(12);
             doc.text("Prioridades do Turno:", 10, 80);
 
-            const prioridadesTable = document.getElementById('relatorioPrioridadesTable');
+            const frentes = document.querySelectorAll('.frente');
+            const outrosTextos = document.querySelectorAll('.outros-texto');
+            const comentarios = document.querySelectorAll('.comentarios');
+            const justificativas = document.querySelectorAll('.justificativa');
+
             const prioridadesData = [];
-            for (let i = 1; i < prioridadesTable.rows.length; i++) {
-                const row = prioridadesTable.rows[i];
+            for (let i = 0; i < frentes.length; i++) {
+                let frenteValue = frentes[i].value;
+                if (frentes[i].value === 'Outros' && outrosTextos[i].value) {
+                    frenteValue = outrosTextos[i].value;
+                }
+
                 prioridadesData.push([
-                    row.cells[0].innerText,
-                    row.cells[1].innerText,
-                    row.cells[2].innerText,
-                    row.cells[3].innerText
+                    (i + 1).toString(),
+                    frenteValue,
+                    comentarios[i].value,
+                    justificativas[i].value
                 ]);
             }
 
