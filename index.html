@@ -185,6 +185,16 @@
             border-radius: 4px;
             font-size: 10px;
         }
+        .responsavel-outros {
+            display: none;
+            margin-top: 5px;
+            width: 100%;
+            padding: 6px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 10px;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.24/jspdf.plugin.autotable.min.js"></script>
@@ -230,7 +240,7 @@
 
         <div class="input-group">
             <label for="responsavel">Responsável:</label>
-            <select id="responsavel" name="responsavel">
+            <select id="responsavel" name="responsavel" onchange="verificarOutrosResponsavel(this)">
                 <option value="Aline Nunes">Aline Nunes</option>
                 <option value="Anilson Martins">Anilson Martins</option>
                 <option value="Euildes Pereira">Euildes Pereira</option>
@@ -243,7 +253,9 @@
                 <option value="Wallace Henrique">Wallace Henrique</option>
                 <option value="Weberson Moraes">Weberson Moraes</option>
                 <option value="Wedson Gomes">Wedson Gomes</option>
+                <option value="Outros">Outros</option>
             </select>
+            <input type="text" id="responsavelOutros" class="responsavel-outros" placeholder="Digite o nome do responsável">
         </div>
 
         <h3>📌 Prioridades do Turno:</h3>
@@ -399,6 +411,17 @@
             }
         }
 
+        function verificarOutrosResponsavel(select) {
+            const outrosInput = document.getElementById('responsavelOutros');
+            if (select.value === 'Outros') {
+                outrosInput.style.display = 'block';
+                outrosInput.required = true;
+            } else {
+                outrosInput.style.display = 'none';
+                outrosInput.required = false;
+            }
+        }
+
         function adicionarAtividade() {
             const table = document.getElementById('prioridadesTable');
             const newRow = table.insertRow(-1);
@@ -539,7 +562,11 @@
             const area = document.getElementById('area').value;
             const turno = document.getElementById('turno').value;
             const periodo = document.getElementById('periodo').value;
-            const responsavel = document.getElementById('responsavel').value;
+            
+            let responsavel = document.getElementById('responsavel').value;
+            if (responsavel === 'Outros') {
+                responsavel = document.getElementById('responsavelOutros').value;
+            }
 
             document.getElementById('relatorioData').innerText = data;
             document.getElementById('relatorioArea').innerText = area;
@@ -676,7 +703,12 @@
             doc.setFont(undefined, 'bold');
             doc.text("Responsável:", 10, 70);
             doc.setFont(undefined, 'normal');
-            doc.text(`${document.getElementById('responsavel').value}`, 35, 70);
+            
+            let responsavel = document.getElementById('responsavel').value;
+            if (responsavel === 'Outros') {
+                responsavel = document.getElementById('responsavelOutros').value;
+            }
+            doc.text(`${responsavel}`, 35, 70);
 
             doc.setFont(undefined, 'bold');
             doc.setFontSize(12);
